@@ -68,5 +68,5 @@ private void OnArea2DEntered(Area2D area)
 ---
 ## Licence
 
-Licenced under the MIT licence, see [LICENCE.txt](https://github.com/tokikostudio/GodotInputNameGenerator/blob/main/LICENSE) for more information.
+Licenced under the MIT licence, see [LICENCE.txt](https://github.com/tokikostudio/GodotUtilsGenerator/blob/main/LICENSE) for more information.
 
