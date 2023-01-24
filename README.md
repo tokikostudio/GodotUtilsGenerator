@@ -1,15 +1,15 @@
 Godot Utils Generator
 ===
-A C# Incremental Source Generator used to parse `project.godot` file,
-and generate various compile-time constant which are kept in sync with the project settings,
-thus removing the need for raw strings or manual hardcoded values.
+A C# Incremental Source Generator used to parse `project.godot` file, and generate various compile-time constant which are kept in sync with the project settings, thus removing the need for raw strings or manual hardcoded values.
+
+**IMPORTANT: The generator is based on Godot 4.x version, and rely on the separation between 2D and 3D class name.**
 
 - [Installation](#installation)
 - [Usage](#usage)
 - [Licence](#licence)
 
 ---
-### Installation
+## Installation
 
 - Clone or download the project
 - Update your Godot `Project.csproj` file `PropertyGroup` and `ProjectReference` sections as shown below:
@@ -30,39 +30,43 @@ thus removing the need for raw strings or manual hardcoded values.
 - Rebuild the solution and you're done 🥳
 
 ---
-### Usage
+## Usage
 
-#### Inputs
+### Inputs
 
-[Input Actions](https://docs.godotengine.org/en/stable/tutorials/inputs/input_examples.html#inputmap) names will be generated in the `GodotExtensions.InputName` class.
+Input Actions names will be generated in the `GodotExtensions.InputName` class.
 
-```diff 
+![image](https://user-images.githubusercontent.com/1193295/214432075-331cee78-6d6d-47e8-8c20-c4c2651d49b8.png)
+```cs 
 using GodotExtensions;
 
-- float walk = Input.GetAxis("move_left", "move_right");
-+ float walk = Input.GetAxis(InputName.MoveLeft, InputName.MoveRight);
+float walk = Input.GetAxis(InputName.MoveLeft, InputName.MoveRight);
 ```
 
-#### Layers
+### Layers
 
-[Physics Layer](https://docs.godotengine.org/en/stable/tutorials/physics/physics_introduction.html#collision-layers-and-masks) bitmask value will be generated in the `GodotExtensions.LayerName` class.
+Physics, Render and Navigation layers bitmask value will be generated in the `GodotExtensions.Layer` class: it contains each combinations of `2D` and `3D` for each `Render`, `Physics` and `Navigation` layer.
 
-It contains each combinations of `2D` and `3D` for each `Render`, `Physics` and `Navigation` layer.
+Extensions classes are also generated for 2D and 3D variant of `VisualInstance`, `CollisionObject`, `NavigationLink`, `NavigationRegion` and `NavigationAgent` Godot classes.
 
 Usage sample:
+
+![image](https://user-images.githubusercontent.com/1193295/214432327-313d020c-d313-46cd-bf77-68233f5c946d.png)
+
 ```cs
+using GodotExtensions;
 
-    private void OnArea3DEntered(Area3D area)
-    {
-        if ((area.CollisionLayer & LayerName.Physics3D.Player) != 0)
-            ; // ...
 
-        if ((area.CollisionMask & LayerName.Physics3D.Enemy) != 0)
-            ; // ...
-    }
+uint collisionMask = Layer.Physics2D.Enemy | Layer.Physics2D.Props;
+    
+private void OnArea2DEntered(Area2D area)
+{
+    if (area.HasCollisionLayerEnemy())
+        // ...
+}
 ```
 ---
-### Licence
+## Licence
 
 Licenced under the MIT licence, see [LICENCE.txt](https://github.com/tokikostudio/GodotInputNameGenerator/blob/main/LICENSE) for more information.
 
