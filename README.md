@@ -38,7 +38,7 @@ Input Actions names will be generated in the `GodotExtensions.InputName` class.
 
 ![image](https://user-images.githubusercontent.com/1193295/214432075-331cee78-6d6d-47e8-8c20-c4c2651d49b8.png)
 ```cs 
-using GodotExtensions;
+using GodotUtils;
 
 float walk = Input.GetAxis(InputName.MoveLeft, InputName.MoveRight);
 ```
@@ -54,7 +54,7 @@ Usage sample:
 ![image](https://user-images.githubusercontent.com/1193295/214432327-313d020c-d313-46cd-bf77-68233f5c946d.png)
 
 ```cs
-using GodotExtensions;
+using GodotUtils;
 
 
 uint collisionMask = Layer.Physics2D.Enemy | Layer.Physics2D.Props;
@@ -65,6 +65,56 @@ private void OnArea2DEntered(Area2D area)
         // ...
 }
 ```
+
+### NodePath with BindExport
+
+The `BindExport(T)` attribute is used to generate a corresponding field with type `T` and have it already setup through one function call. The attribute takes a `Type` constructor parameter so it can be used in the generic GetNode Godot function.
+
+**IMPORTANT:** It requires the exported NodePath field name to ends with `NodePath` 
+
+Instead of the old way of writing nodepath and associated fields:
+```cs
+using GodotUtils;
+public partial MyNode : Node
+{
+  [Export] private NodePath _labelANodePath;
+  [Export] private NodePath _labelBNodePath;
+  [Export] private NodePath _timerNodePath;
+  [Export] private NodePath _otherNodeNodePath;
+  
+  private Label _labelA;
+  private Label _labelB;
+  private Timer _timer;
+  private Node otherNode;
+  public override void _EnterTree()
+  {
+    _labelA = GetNode<Label>(_labelANodePath);
+    _labelB = GetNode<Label>(_labelBNodePath);
+    _timer = GetNode<Timer>(_timerNodePath);
+    _otherNode = GetNode<Node>(_otherNodeNodePath);
+  }
+}
+```
+
+We can focus on just declaring the NodePath, the binding type and voilà!
+
+```cs
+using GodotUtils;
+public partial MyNode : Node
+{
+  [Export, BindExport(typeof(Label))] private NodePath _labelANodePath;
+  [Export, BindExport(typeof(Label))] private NodePath _labelBNodePath;
+  [Export, BindExport(typeof(Timer))] private NodePath _timerNodePath;
+  [Export, BindExport(typeof(Node))]  private NodePath _otherNodeNodePath;
+  
+  public override void _EnterTree()
+  {
+    BindExportedNodePaths();
+    // You can start using _labelA, _labelB, _timer and _otherNode
+  }
+}
+```
+
 ---
 ## Licence
 
