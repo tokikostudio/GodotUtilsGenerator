@@ -8,7 +8,7 @@ namespace Tokiko.SourceGenerators;
 internal partial class GodotUtilsGenerator : IIncrementalGenerator
 {
     public const string ProjectGodotFile = "project.godot";
-    public const string OutputNamespace  = "GodotExtensions";
+    public const string OutputNamespace  = "GodotUtils";
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
