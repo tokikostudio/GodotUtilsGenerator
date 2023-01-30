@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Tokiko.SourceGenerators;
 
-public static class InputPipelineGenerator
+public static class InputNamePipeline
 {
     private const string OutputClassName = "InputName";
     private const string SectionName     = "input";

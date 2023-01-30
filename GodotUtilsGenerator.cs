@@ -14,7 +14,7 @@ internal partial class GodotUtilsGenerator : IIncrementalGenerator
     {
         var sectionsProvider = SectionParserPipeline.Setup(context);
 
-        InputPipelineGenerator.Setup(context, sectionsProvider);
-        LayerPipelineGenerator.Setup(context, sectionsProvider);
+        InputNamePipeline.Setup(context, sectionsProvider);
+        LayerNamePipeline.Setup(context, sectionsProvider);
     }
 }

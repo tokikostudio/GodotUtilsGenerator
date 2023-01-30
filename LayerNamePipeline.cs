@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Tokiko.SourceGenerators;
 
-public static class LayerPipelineGenerator
+public static class LayerNamePipeline
 {
     private const string OutputClassName = "Layer";
     private const string SectionName     = "layer_names";
