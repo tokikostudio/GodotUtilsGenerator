@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using System.Text;
-using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
@@ -81,39 +79,55 @@ public class {AttributeName} : Attribute
                                               ImmutableArray<FieldDeclarationSyntax> nodePathFields)
 
     {
-        var nodePathDataArray  = GetNodePathDataArray(compilation, nodePathFields, context.CancellationToken);
+        var nodePathDataArray  = GetNodePathDataArray(context, compilation, nodePathFields);
         var nodePathDataGroups = nodePathDataArray.GroupBy(ef => ef.FullClassName);
 
         foreach (var group in nodePathDataGroups)
         {
-            var classFullName = group.Key;
-            GenerateOutputSource(context, classFullName, group);
+            var fullClassName = group.Key;
+            GenerateOutputSource(context, fullClassName, group);
         }
     }
 
-    private static List<NodePathData> GetNodePathDataArray(Compilation                            compilation,
-                                                           ImmutableArray<FieldDeclarationSyntax> nodePathFields,
-                                                           CancellationToken                      cancellation)
+    private static List<NodePathData> GetNodePathDataArray(SourceProductionContext                context,
+                                                           Compilation                            compilation,
+                                                           ImmutableArray<FieldDeclarationSyntax> nodePathFields)
     {
         var nodePathData = new List<NodePathData>();
         foreach (var fieldSyntax in nodePathFields)
         {
-            cancellation.ThrowIfCancellationRequested();
+            if (fieldSyntax.Declaration.Variables.Count == 0)
+                continue;
+
             var semanticModel = compilation.GetSemanticModel(fieldSyntax.SyntaxTree);
             foreach (var variableSyntax in fieldSyntax.Declaration.Variables)
             {
                 var varSymbol = semanticModel.GetDeclaredSymbol(variableSyntax);
-                var boundTypeCast = varSymbol.GetAttributes()
-                                             .First(a => a.AttributeClass.Name == AttributeName)
-                                             .ConstructorArguments[0]
-                                             .Value.ToString();
+
+                if (varSymbol == null || varSymbol.ContainingType == null)
+                    continue;
+
+                var bindExportAttr = varSymbol.GetAttributes()
+                                              .Where(a => a.AttributeClass                != null)
+                                              .FirstOrDefault(a => a.AttributeClass!.Name == AttributeName);
+                if (bindExportAttr == null || bindExportAttr.ConstructorArguments.Length == 0)
+                    continue;
+
+                if (bindExportAttr.ConstructorArguments[0].Value == null)
+                    continue;
+
+                var boundTypeCast = bindExportAttr.ConstructorArguments[0].Value.ToString();
+                if (string.IsNullOrEmpty(boundTypeCast))
+                    continue;
 
                 var nodePathField = varSymbol.Name;
-                if (!nodePathField.EndsWith(NodePathSuffix))
+                if (string.IsNullOrEmpty(nodePathField) || !nodePathField.EndsWith(NodePathSuffix))
                     continue;
 
                 var subLength      = nodePathField.Length - NodePathSuffix.Length;
                 var generatedField = nodePathField.Substring(0, subLength);
+                if (string.IsNullOrEmpty(generatedField))
+                    continue;
 
                 nodePathData.Add(new NodePathData()
                 {

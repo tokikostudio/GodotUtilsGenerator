@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using System.IO;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 
 namespace Tokiko.SourceGenerators;
 
@@ -13,6 +11,10 @@ internal partial class GodotUtilsGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var sectionsProvider = SectionParserPipeline.Setup(context);
+// #if DEBUG
+//         if (!Debugger.IsAttached)
+//             Debugger.Launch();
+// #endif
 
         InputNamePipeline.Setup(context, sectionsProvider);
         LayerNamePipeline.Setup(context, sectionsProvider);
