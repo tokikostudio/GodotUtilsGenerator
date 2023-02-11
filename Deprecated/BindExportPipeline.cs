@@ -99,7 +99,16 @@ public class {AttributeName} : Attribute
             if (fieldSyntax.Declaration.Variables.Count == 0)
                 continue;
 
-            var semanticModel = compilation.GetSemanticModel(fieldSyntax.SyntaxTree);
+            SemanticModel semanticModel;
+            try
+            {
+                semanticModel = compilation.GetSemanticModel(fieldSyntax.SyntaxTree);
+            }
+            catch (ArgumentException) // "SyntaxTree is not part of compilation unit"
+            {
+                continue;
+            }
+
             foreach (var variableSyntax in fieldSyntax.Declaration.Variables)
             {
                 var varSymbol = semanticModel.GetDeclaredSymbol(variableSyntax);
